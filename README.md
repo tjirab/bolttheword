@@ -1,73 +1,76 @@
-# React + TypeScript + Vite
+# Bolt The Word ⚡️🧩
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Daily Magic: The Gathering Crossword**
 
-Currently, two official plugins are available:
+<p align="center">
+  <img src="public/boltthebird.png" alt="Bolt The Word Logo" width="120" height="120" style="border-radius: 50%;">
+</p>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Test your knowledge of Magic: The Gathering cards, lore, and mechanics with a new crossword puzzle every day!
 
-## React Compiler
+## 🎮 How to Play
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1.  **Daily Puzzle**: A new puzzle is generated every day based on the current date. Everyone gets the same puzzle!
+2.  **Clues**: Click on a clue in the list or a cell in the grid to highlight the word.
+    *   **Flavor**: Guess the card from its flavor text.
+    *   **Oracle**: Fill in the blank (classic card text).
+    *   **Artist**: Identify the card by its artist, set, and mana cost.
+    *   **Type & Cost**: Guess the card from its type line and mana cost.
+3.  **Navigation**:
+    *   Type to fill in letters.
+    *   Use **Arrow Keys** to move around.
+    *   Click a cell **twice** to switch direction (Across/Down).
+    *   **Backspace** clears the cell and moves back.
+4.  **Winning**: The game will automatically notify you when the grid is filled correctly.
+5.  **Stuck?**: You can click the "Concede" button to reveal the solution.
 
-## Expanding the ESLint configuration
+## 🛠️ Development
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+This project is built with **React**, **TypeScript**, **Vite**, and **Tailwind CSS**. It fetches data from the [Scryfall API](https://scryfall.com/docs/api).
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Prerequisites
+- Node.js (v18+)
+- npm
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Installation
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+git clone https://github.com/tjirab/bolttheword.git
+cd bolttheword
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Running Locally
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
 ```
+
+Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+### Building for Production
+
+```bash
+npm run build
+```
+
+For advanced configuration (ESLint, React Compiler), see [DEVELOPMENT.md](DEVELOPMENT.md).
+
+## 🚀 Deployment
+
+The project is configured for **GitHub Pages**.
+
+To deploy manually:
+
+```bash
+npm run deploy
+```
+
+This will build the project and push the `dist` folder to the `gh-pages` branch.
+
+## 🔒 Security
+
+This is a client-side application. No user data is stored or transmitted to any server (other than fetching public card data from Scryfall).
+
+## 📄 License
+MIT
