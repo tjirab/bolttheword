@@ -54,6 +54,8 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 npm run build
 ```
 
+For advanced configuration (ESLint, React Compiler), see [DEVELOPMENT.md](DEVELOPMENT.md).
+
 ## 🚀 Deployment
 
 The project is configured for **GitHub Pages**.
