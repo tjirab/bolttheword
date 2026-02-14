@@ -196,7 +196,41 @@ function App() {
       )}
 
       {!loading && !solved && gridData && (
-        <div className="mt-8">
+        <div className="mt-8 flex gap-4">
+          <button
+            onClick={() => {
+              if (!selectedCell) return;
+              const { x, y } = selectedCell;
+              if (gridData.grid[y][x]) {
+                const newGrid = [...userGrid.map(row => [...row])];
+                newGrid[y][x] = gridData.grid[y][x];
+                setUserGrid(newGrid);
+                checkWin(newGrid);
+              }
+            }}
+            className="text-yellow-500 hover:text-yellow-400 transition-colors text-sm underline opacity-70 hover:opacity-100"
+          >
+            Reveal Cell
+          </button>
+          <button
+            onClick={() => {
+              if (!activeClueId) return;
+              const clue = gridData.clues.find(c => c.id === activeClueId);
+              if (clue) {
+                const newGrid = [...userGrid.map(row => [...row])];
+                const dx = clue.direction === 'across' ? 1 : 0;
+                const dy = clue.direction === 'down' ? 1 : 0;
+                for (let i = 0; i < clue.length; i++) {
+                  newGrid[clue.y + dy * i][clue.x + dx * i] = gridData.grid[clue.y + dy * i][clue.x + dx * i];
+                }
+                setUserGrid(newGrid);
+                checkWin(newGrid);
+              }
+            }}
+            className="text-orange-500 hover:text-orange-400 transition-colors text-sm underline opacity-70 hover:opacity-100"
+          >
+            Reveal Word
+          </button>
           <button
             onClick={() => {
               const filled = gridData.grid.map(row => row.map(cell => cell || ''));
