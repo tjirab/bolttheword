@@ -111,7 +111,11 @@ export function generateCrossword(cards: Card[], dateStr: string): CrosswordGrid
                         const nx = tx - (newDir === 'across' ? k : 0);
                         const ny = ty - (newDir === 'down' ? k : 0);
 
-                        if (canPlaceWordAt(grid, word, nx, ny, newDir)) {
+                        // Check if any existing word starts at this position
+                        // User request: "avoid cases were across and down start from the same point"
+                        const sharesStart = placedCards.some(pc => pc.x === nx && pc.y === ny);
+
+                        if (!sharesStart && canPlaceWordAt(grid, word, nx, ny, newDir)) {
                             placeWord(grid, word, nx, ny, newDir);
                             placedCards.push({ card, word, x: nx, y: ny, dir: newDir });
                             placed = true;
