@@ -3,7 +3,7 @@
 **Daily Magic: The Gathering Crossword**
 
 <p align="center">
-  <img src="public/boltthebird.png" alt="Bolt The Word Logo" width="120" height="120" style="border-radius: 50%;">
+  <img src="src/assets/boltthebird.png" alt="Bolt The Word Logo" width="120" height="120" style="border-radius: 50%;">
 </p>
 
 # [⚡️ PLAY NOW ⚡️](https://tjirab.github.io/bolttheword/)
