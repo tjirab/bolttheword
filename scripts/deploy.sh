@@ -17,6 +17,10 @@ if [[ "$BRANCH" != "main" ]]; then
   fi
 fi
 
+# Pull latest changes
+echo "⬇️  Pulling latest changes from main..."
+git pull origin main
+
 # Run build
 echo "📦 Building project..."
 npm run build
