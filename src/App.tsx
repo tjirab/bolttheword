@@ -158,7 +158,7 @@ function App() {
           Bolt The Word
         </h1>
         <p className="text-gray-400 mt-2 text-lg">Daily Magic: The Gathering Crossword</p>
-        <p className="text-xs text-gray-600 font-mono mt-1">{new Date().toDateString()} • v1.9 (Logo Fix)</p>
+        <p className="text-xs text-gray-600 font-mono mt-1">{new Date().toDateString()} • v1.11 (Expanded Mechanics)</p>
       </header>
 
       {loading ? (
@@ -179,7 +179,11 @@ function App() {
               highlightedClueId={activeClueId}
             />
             <div className="text-sm text-gray-500 mt-4 max-w-md text-center">
-              <p>Click twice to switch direction. Use arrow keys to navigate.</p>
+              <p className="mb-2">Click twice to switch direction. Use arrow keys to navigate.</p>
+              <div className="text-xs text-gray-400 border-t border-gray-800 pt-2 flex flex-col gap-1">
+                <p><span className="font-bold text-gray-500">Artists:</span> Surname only (e.g. "RUSH")</p>
+                <p><span className="font-bold text-gray-500">Mana Cost:</span> No symbols (e.g. "2BB" for {"{2}{B}{B}"})</p>
+              </div>
             </div>
           </div>
 

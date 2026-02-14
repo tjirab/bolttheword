@@ -5,6 +5,44 @@ function cleanWord(word: string): string {
     return word.replace(/[^a-zA-Z]/g, '').toUpperCase();
 }
 
+// Set name mapping
+const SET_NAMES: Record<string, string> = {
+    'leb': 'BETA',
+    'arn': 'ARABIANNIGHTS',
+    'leg': 'LEGENDS',
+    'drk': 'THEDARK',
+    'atq': 'ANTIQUITIES',
+    'fem': 'FALLENEMPIRES'
+};
+
+function getArtistSurname(artist: string): string {
+    const parts = artist.split(' ');
+    // Handle cases like "Douglas Shuler" -> "SHULER"
+    // "Anson Maddocks" -> "MADDOCKS"
+    return cleanWord(parts[parts.length - 1]);
+}
+
+function getBasicType(typeLine: string): string | null {
+    const types = ['Creature', 'Artifact', 'Enchantment', 'Sorcery', 'Instant', 'Land', 'Planeswalker'];
+    for (const t of types) {
+        if (typeLine.includes(t)) return t.toUpperCase();
+    }
+    return null;
+}
+
+function formatManaCost(cost: string): string {
+    if (!cost) return '';
+    // {2}{B}{B} -> 2BB
+    return cost.replace(/[{}]/g, '');
+}
+
+interface Candidate {
+    word: string;
+    clue: string;
+    card: Card;
+    type: 'name' | 'artist' | 'type' | 'set' | 'cost';
+}
+
 function canPlaceWordAt(grid: (string | null)[][], word: string, x: number, y: number, direction: 'across' | 'down'): boolean {
     const height = grid.length;
     const width = grid[0].length;
@@ -61,45 +99,166 @@ export function generateCrossword(cards: Card[], dateStr: string): CrosswordGrid
     const grid: (string | null)[][] = Array(HEIGHT).fill(null).map(() => Array(WIDTH).fill(null));
     const clues: Clue[] = [];
 
-    // Filter cards with simple names and reasonable length
-    const candidates = cards.filter(c => {
-        const clean = cleanWord(c.name);
-        return clean.length >= 3 && clean.length <= 12;
-    }).sort(() => rng() - 0.5);
+    // 1. Generate all possible candidates from cards
+    const allCandidates: Candidate[] = [];
 
-    const placedCards: { card: Card; word: string; x: number; y: number; dir: 'across' | 'down' }[] = [];
+    cards.forEach(card => {
+        // A. Card Name (Classic)
+        // Clue: "Oracle: ..." or "Flavor: ..."
+        const cleanName = cleanWord(card.name);
+        if (cleanName.length >= 3 && cleanName.length <= 12) {
+            // Decide on clue style for name
+            const isFlavor = card.flavor_text && rng() > 0.5;
+            let clueText = "";
+            if (isFlavor && card.flavor_text) {
+                clueText = `Flavor: "${card.flavor_text}"`;
+            } else if (card.oracle_text) {
+                clueText = `Oracle: ${card.oracle_text.replace(new RegExp(card.name, 'gi'), 'CARDNAME')}`;
+            } else {
+                clueText = `[${card.set.toUpperCase()}] ${card.type_line}`;
+            }
 
-    // Place first word in the center
+            allCandidates.push({ word: cleanName, clue: clueText, card, type: 'name' });
+        }
+
+        // B. Artist Surname
+        if (card.artist) {
+            const surname = getArtistSurname(card.artist);
+            if (surname.length >= 3 && surname.length <= 12) {
+                allCandidates.push({
+                    word: surname,
+                    clue: `Artist of "${card.name}"`,
+                    card,
+                    type: 'artist'
+                });
+            }
+        }
+
+        // C. Card Type (Basic)
+        const typeChoice = getBasicType(card.type_line);
+        if (typeChoice && typeChoice.length >= 3 && typeChoice.length <= 12) {
+            allCandidates.push({
+                word: typeChoice,
+                clue: `Type of "${card.name}"`,
+                card,
+                type: 'type'
+            });
+        }
+
+        // D. Set Name
+        if (card.set && SET_NAMES[card.set]) {
+            const setName = SET_NAMES[card.set];
+            allCandidates.push({
+                word: setName,
+                clue: `Set containing "${card.name}"`,
+                card,
+                type: 'set'
+            });
+        }
+
+        // E. Mana Cost
+        if (card.mana_cost) {
+            const formattedCost = formatManaCost(card.mana_cost);
+            if (formattedCost.length >= 3 && formattedCost.length <= 12) {
+                allCandidates.push({
+                    word: formattedCost,
+                    clue: `Mana cost of "${card.name}"`,
+                    card,
+                    type: 'cost'
+                });
+            }
+        }
+    });
+
+    // Shuffle candidates
+    const candidates = allCandidates.sort(() => rng() - 0.5);
+
+    // Limits for specific clue types
+    const MAX_SPECIAL_CLUES = 2;
+    let typeCount = 0;
+    let setCount = 0;
+    let costCount = 0;
+
+    const placedItems: { candidate: Candidate; x: number; y: number; dir: 'across' | 'down' }[] = [];
+
+    // Helper to check and increment limits
+    const checkAndIncrementLimit = (type: string): boolean => {
+        if (type === 'type') {
+            if (typeCount >= MAX_SPECIAL_CLUES) return false;
+            typeCount++;
+            return true;
+        }
+        if (type === 'set') {
+            if (setCount >= MAX_SPECIAL_CLUES) return false;
+            setCount++;
+            return true;
+        }
+        if (type === 'cost') {
+            if (costCount >= MAX_SPECIAL_CLUES) return false;
+            costCount++;
+            return true;
+        }
+        return true;
+    };
+
+    // Place first word
     if (candidates.length > 0) {
-        const first = candidates[0];
-        const word = cleanWord(first.name);
-        const dir = rng() > 0.5 ? 'across' : 'down';
+        // Find a valid starting candidate (prefer name or artist to start, or just check limits)
+        let firstIndex = 0;
+        let first: Candidate | null = null;
 
-        // adjust centering based on direction
-        const startX = dir === 'across' ? Math.floor((WIDTH - word.length) / 2) : Math.floor(WIDTH / 2);
-        const startY = dir === 'down' ? Math.floor((HEIGHT - word.length) / 2) : Math.floor(HEIGHT / 2);
+        // Try to find a valid first candidate that satisfies limits
+        for (let i = 0; i < candidates.length; i++) {
+            if (checkAndIncrementLimit(candidates[i].type)) {
+                first = candidates[i];
+                firstIndex = i;
+                break;
+            }
+        }
 
-        if (canPlaceWordAt(grid, word, startX, startY, dir)) {
-            placeWord(grid, word, startX, startY, dir);
-            placedCards.push({ card: first, word, x: startX, y: startY, dir });
+        if (first) {
+            const word = first.word;
+            const dir = rng() > 0.5 ? 'across' : 'down';
+            const startX = dir === 'across' ? Math.floor((WIDTH - word.length) / 2) : Math.floor(WIDTH / 2);
+            const startY = dir === 'down' ? Math.floor((HEIGHT - word.length) / 2) : Math.floor(HEIGHT / 2);
+
+            if (canPlaceWordAt(grid, word, startX, startY, dir)) {
+                placeWord(grid, word, startX, startY, dir);
+                placedItems.push({ candidate: first, x: startX, y: startY, dir });
+                // Remove placed candidate from list to avoid duplicates (though we iterate fwd)
+                candidates.splice(firstIndex, 1);
+            } else {
+                // Revert counts if failed to place (though first word usually succeeds)
+                if (first.type === 'type') typeCount--;
+                if (first.type === 'set') setCount--;
+                if (first.type === 'cost') costCount--;
+            }
         }
     }
 
     // Iterative placement
-    for (let i = 1; i < candidates.length; i++) {
-        const card = candidates[i];
-        const word = cleanWord(card.name);
+    // We already removed the first placed one if any, so we iterate from 0
+    for (let i = 0; i < candidates.length; i++) {
+        const candidate = candidates[i];
+
+        // Check limits BEFORE trying to place
+        if (candidate.type === 'type' && typeCount >= MAX_SPECIAL_CLUES) continue;
+        if (candidate.type === 'set' && setCount >= MAX_SPECIAL_CLUES) continue;
+        if (candidate.type === 'cost' && costCount >= MAX_SPECIAL_CLUES) continue;
+
+        const word = candidate.word;
         let placed = false;
 
         // Try to intersect with existing words
-        const targets = [...placedCards].sort(() => rng() - 0.5);
+        const targets = [...placedItems].sort(() => rng() - 0.5);
 
         for (const target of targets) {
             if (placed) break;
-            // Try every intersection point
-            for (let j = 0; j < target.word.length; j++) {
+            const targetWord = target.candidate.word;
+
+            for (let j = 0; j < targetWord.length; j++) {
                 if (placed) break;
-                const intersectChar = target.word[j];
+                const intersectChar = targetWord[j];
                 const tx = target.x + (target.dir === 'across' ? j : 0);
                 const ty = target.y + (target.dir === 'down' ? j : 0);
 
@@ -111,9 +270,18 @@ export function generateCrossword(cards: Card[], dateStr: string): CrosswordGrid
                         const nx = tx - (newDir === 'across' ? k : 0);
                         const ny = ty - (newDir === 'down' ? k : 0);
 
-                        if (canPlaceWordAt(grid, word, nx, ny, newDir)) {
+                        // Check if any existing word starts at this position
+                        const sharesStart = placedItems.some(pi => pi.x === nx && pi.y === ny);
+
+                        if (!sharesStart && canPlaceWordAt(grid, word, nx, ny, newDir)) {
                             placeWord(grid, word, nx, ny, newDir);
-                            placedCards.push({ card, word, x: nx, y: ny, dir: newDir });
+                            placedItems.push({ candidate, x: nx, y: ny, dir: newDir });
+
+                            // Increment limits
+                            if (candidate.type === 'type') typeCount++;
+                            if (candidate.type === 'set') setCount++;
+                            if (candidate.type === 'cost') costCount++;
+
                             placed = true;
                             break;
                         }
@@ -124,32 +292,15 @@ export function generateCrossword(cards: Card[], dateStr: string): CrosswordGrid
     }
 
     // Generate clues
-    placedCards.forEach((pc) => {
-        // Generate a clue text based on card properties
-        const clueType = Math.floor(rng() * 4); // 0: Flavor, 1: Oracle, 2: Type+Cost, 3: Artist
-        let clueText = "";
-
-        if (clueType === 0 && pc.card.flavor_text) {
-            clueText = `Flavor: ${pc.card.flavor_text}`;
-        } else if (clueType === 1 && pc.card.oracle_text) {
-            clueText = `Oracle: ${pc.card.oracle_text.replace(pc.card.name, 'CARDNAME')}`;
-        } else if (clueType === 2) {
-            clueText = `${pc.card.type_line}; ${pc.card.mana_cost || '0'}`;
-        } else if (clueType === 3 && pc.card.artist) {
-            clueText = `Artist: ${pc.card.artist}; ${pc.card.set.toUpperCase()}; ${pc.card.mana_cost || ''}`;
-        } else {
-            // Fallback
-            clueText = `[${pc.card.set.toUpperCase()}] ${pc.card.type_line}`;
-        }
-
+    placedItems.forEach((pi) => {
         clues.push({
-            id: pc.card.id,
-            clue: clueText,
-            answer: pc.word,
-            direction: pc.dir,
-            x: pc.x,
-            y: pc.y,
-            length: pc.word.length
+            id: `${pi.candidate.card.id}-${pi.x}-${pi.y}`, // Unique ID just in case
+            clue: pi.candidate.clue,
+            answer: pi.candidate.word,
+            direction: pi.dir,
+            x: pi.x,
+            y: pi.y,
+            length: pi.candidate.word.length
         });
     });
 
