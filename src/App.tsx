@@ -158,7 +158,7 @@ function App() {
           Bolt The Word
         </h1>
         <p className="text-gray-400 mt-2 text-lg">Daily Magic: The Gathering Crossword</p>
-        <p className="text-xs text-gray-600 font-mono mt-1">{new Date().toDateString()} • v1.9 (Logo Fix)</p>
+        <p className="text-xs text-gray-600 font-mono mt-1">{new Date().toDateString()} • v1.11 (Expanded Mechanics)</p>
       </header>
 
       {loading ? (
