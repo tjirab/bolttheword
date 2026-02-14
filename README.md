@@ -6,6 +6,8 @@
   <img src="public/boltthebird.png" alt="Bolt The Word Logo" width="120" height="120" style="border-radius: 50%;">
 </p>
 
+# [⚡️ PLAY NOW ⚡️](https://tjirab.github.io/bolttheword/)
+
 Test your knowledge of Magic: The Gathering cards, lore, and mechanics with a new crossword puzzle every day!
 
 ## 🎮 How to Play
