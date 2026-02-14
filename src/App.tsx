@@ -6,6 +6,7 @@ import { Crossword } from './components/Crossword';
 import { Clues } from './components/Clues';
 import seedrandom from 'seedrandom';
 import { Sparkles, Loader2 } from 'lucide-react';
+import boltLogo from './assets/boltthebird.png';
 
 function App() {
   const [gridData, setGridData] = useState<CrosswordGrid | null>(null);
@@ -150,14 +151,14 @@ function App() {
       <header className="mb-8 text-center">
         <h1 className="text-4xl font-extrabold flex items-center justify-center gap-3 text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">
           <img
-            src="/boltthebird.png"
+            src={boltLogo}
             alt="Bolt The Bird"
-            className="w-16 h-16 rounded-full object-cover object-center border-2 border-yellow-400 shadow-md"
+            className="w-16 h-16 rounded-full object-cover object-center border-2 border-yellow-400 shadow-md bg-black"
           />
           Bolt The Word
         </h1>
         <p className="text-gray-400 mt-2 text-lg">Daily Magic: The Gathering Crossword</p>
-        <p className="text-xs text-gray-600 font-mono mt-1">{new Date().toDateString()} • v1.9 (Larger Grid)</p>
+        <p className="text-xs text-gray-600 font-mono mt-1">{new Date().toDateString()} • v1.9 (Logo Fix)</p>
       </header>
 
       {loading ? (
