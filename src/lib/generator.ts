@@ -178,6 +178,7 @@ export function generateCrossword(cards: Card[], dateStr: string): CrosswordGrid
     let typeCount = 0;
     let setCount = 0;
     let costCount = 0;
+    let artistCount = 0;
 
     const placedItems: { candidate: Candidate; x: number; y: number; dir: 'across' | 'down' }[] = [];
 
@@ -196,6 +197,11 @@ export function generateCrossword(cards: Card[], dateStr: string): CrosswordGrid
         if (type === 'cost') {
             if (costCount >= MAX_SPECIAL_CLUES) return false;
             costCount++;
+            return true;
+        }
+        if (type === 'artist') {
+            if (artistCount >= MAX_SPECIAL_CLUES) return false;
+            artistCount++;
             return true;
         }
         return true;
@@ -232,6 +238,7 @@ export function generateCrossword(cards: Card[], dateStr: string): CrosswordGrid
                 if (first.type === 'type') typeCount--;
                 if (first.type === 'set') setCount--;
                 if (first.type === 'cost') costCount--;
+                if (first.type === 'artist') artistCount--;
             }
         }
     }
@@ -245,6 +252,7 @@ export function generateCrossword(cards: Card[], dateStr: string): CrosswordGrid
         if (candidate.type === 'type' && typeCount >= MAX_SPECIAL_CLUES) continue;
         if (candidate.type === 'set' && setCount >= MAX_SPECIAL_CLUES) continue;
         if (candidate.type === 'cost' && costCount >= MAX_SPECIAL_CLUES) continue;
+        if (candidate.type === 'artist' && artistCount >= MAX_SPECIAL_CLUES) continue;
 
         const word = candidate.word;
         let placed = false;
@@ -281,6 +289,7 @@ export function generateCrossword(cards: Card[], dateStr: string): CrosswordGrid
                             if (candidate.type === 'type') typeCount++;
                             if (candidate.type === 'set') setCount++;
                             if (candidate.type === 'cost') costCount++;
+                            if (candidate.type === 'artist') artistCount++;
 
                             placed = true;
                             break;
