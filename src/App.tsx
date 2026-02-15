@@ -16,24 +16,28 @@ function App() {
   const [direction, setDirection] = useState<'across' | 'down'>('across');
   const [activeClueId, setActiveClueId] = useState<string | null>(null);
   const [solved, setSolved] = useState(false);
+  const [gameMode, setGameMode] = useState<'oldschool' | 'premodern'>('oldschool');
 
   useEffect(() => {
     const initGame = async () => {
       setLoading(true);
       const today = new Date().toDateString();
-      const rng = seedrandom(today);
+      // Combine date and mode for seed so they have different puzzles
+      const seed = `${today}-${gameMode}`;
+      const rng = seedrandom(seed);
 
       // Pick a random page between 1 and 6 (approx max pages based on set size)
       // Actually fetchCards defaults to 1.
       // We want to vary the cards, so let's pick a page based on the seed.
       const page = Math.floor(rng() * 5) + 1;
 
-      const cards = await fetchCards(page);
+      const cards = await fetchCards(page, gameMode);
       if (cards.length > 0) {
         // We might want to combine multiple pages or filter better, but start with this.
-        const grid = generateCrossword(cards, today);
+        const grid = generateCrossword(cards, seed);
         setGridData(grid);
         setUserGrid(Array(grid.height).fill(null).map(() => Array(grid.width).fill(null)));
+        setSolved(false); // Reset solved state on mode change
 
         // Find first clue to select
         if (grid.clues.length > 0) {
@@ -47,7 +51,7 @@ function App() {
     };
 
     initGame();
-  }, []);
+  }, [gameMode]); // Re-run when gameMode changes
 
   // Update active clue based on selection
   useEffect(() => {
@@ -148,7 +152,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center py-8 px-4 font-sans">
-      <header className="mb-8 text-center">
+      <header className="mb-8 text-center flex flex-col items-center">
         <h1 className="text-4xl font-extrabold flex items-center justify-center gap-3 text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">
           <img
             src={boltLogo}
@@ -158,7 +162,30 @@ function App() {
           Bolt The Word
         </h1>
         <p className="text-gray-400 mt-2 text-lg">Daily Magic: The Gathering Crossword</p>
-        <p className="text-xs text-gray-600 font-mono mt-1">{new Date().toDateString()} • v1.11 (Expanded Mechanics)</p>
+
+        {/* Game Mode Selector */}
+        <div className="mt-4 flex gap-2 bg-gray-800 p-1 rounded-lg border border-gray-700">
+          <button
+            onClick={() => setGameMode('oldschool')}
+            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${gameMode === 'oldschool'
+              ? 'bg-yellow-600 text-white shadow-sm'
+              : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+              }`}
+          >
+            Old School (93/94)
+          </button>
+          <button
+            onClick={() => setGameMode('premodern')}
+            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${gameMode === 'premodern'
+              ? 'bg-yellow-600 text-white shadow-sm'
+              : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+              }`}
+          >
+            Premodern
+          </button>
+        </div>
+
+        <p className="text-xs text-gray-600 font-mono mt-3">{new Date().toDateString()} • v1.11 (Expanded Mechanics)</p>
       </header>
 
       {loading ? (
