@@ -17,9 +17,9 @@ export const Clues: React.FC<CluesProps> = ({ clues, activeClueId, onClueClick }
     const getClueNum = (clue: Clue) => clues.indexOf(clue) + 1;
 
     const ClueList = ({ title, items }: { title: string, items: Clue[] }) => (
-        <div className="flex flex-col gap-2">
-            <h3 className="font-serif text-xl font-bold border-b border-gray-600 pb-1 mb-2 text-gray-200">{title}</h3>
-            <ul className="space-y-1 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+        <div className="flex flex-col gap-2 h-full min-h-0">
+            <h3 className="font-serif text-xl font-bold border-b border-gray-600 pb-1 mb-2 text-gray-200 shrink-0">{title}</h3>
+            <ul className="space-y-1 overflow-y-auto pr-2 custom-scrollbar flex-1 min-h-0">
                 {items.map(clue => (
                     <li
                         key={clue.id}
@@ -42,7 +42,7 @@ export const Clues: React.FC<CluesProps> = ({ clues, activeClueId, onClueClick }
     );
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl h-full">
             <ClueList title="Across" items={across} />
             <ClueList title="Down" items={down} />
         </div>
