@@ -19,7 +19,7 @@ export const Clues: React.FC<CluesProps> = ({ clues, activeClueId, onClueClick }
     const ClueList = ({ title, items }: { title: string, items: Clue[] }) => (
         <div className="flex flex-col gap-2">
             <h3 className="font-serif text-xl font-bold border-b border-gray-600 pb-1 mb-2 text-gray-200">{title}</h3>
-            <ul className="space-y-1 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+            <ul className="space-y-1 max-h-[60vh] lg:max-h-[75vh] overflow-y-auto pr-2 custom-scrollbar">
                 {items.map(clue => (
                     <li
                         key={clue.id}

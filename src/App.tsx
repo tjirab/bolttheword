@@ -214,7 +214,7 @@ function App() {
             </div>
           </div>
 
-          <div className="w-full lg:w-[400px] shrink-0">
+          <div className="w-full lg:w-1/3 xl:w-1/4 min-w-[300px]">
             <Clues clues={gridData.clues} activeClueId={activeClueId} onClueClick={handleClueClick} />
           </div>
         </div>
