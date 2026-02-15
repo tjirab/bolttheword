@@ -2,7 +2,11 @@ import seedrandom from 'seedrandom';
 import type { Card, Clue, CrosswordGrid } from './types';
 
 function cleanWord(word: string): string {
-    return word.replace(/[^a-zA-Z]/g, '').toUpperCase();
+    return word
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-zA-Z]/g, '')
+        .toUpperCase();
 }
 
 // Set name mapping
