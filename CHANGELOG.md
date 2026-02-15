@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/tjirab/bolttheword/compare/v1.0.0...v1.1.0) (2026-02-15)
+
+
+### Features
+
+* **app:** Display dynamic version from package.json ([#18](https://github.com/tjirab/bolttheword/issues/18)) ([0d8924f](https://github.com/tjirab/bolttheword/commit/0d8924fd1b9c3d550f98ce7b41b2ba4c20228d04))
+
+
+### Bug Fixes
+
+* **ui:** Restore Alignment ([#20](https://github.com/tjirab/bolttheword/issues/20)) ([2040941](https://github.com/tjirab/bolttheword/commit/20409414f2c69ff219e02ceac8206f4a7944692f))
+
 ## 1.0.0 (2026-02-15)
 
 
