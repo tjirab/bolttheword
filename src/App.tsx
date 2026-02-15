@@ -17,13 +17,14 @@ function App() {
   const [activeClueId, setActiveClueId] = useState<string | null>(null);
   const [solved, setSolved] = useState(false);
   const [gameMode, setGameMode] = useState<'oldschool' | 'premodern'>('oldschool');
+  const [puzzleIndex, setPuzzleIndex] = useState(1);
 
   useEffect(() => {
     const initGame = async () => {
       setLoading(true);
       const today = new Date().toDateString();
-      // Combine date and mode for seed so they have different puzzles
-      const seed = `${today}-${gameMode}`;
+      // Combine date and mode and index for seed so they have different puzzles
+      const seed = `${today}-${gameMode}-${puzzleIndex}`;
       const rng = seedrandom(seed);
 
       // Pick a random page between 1 and 6 (approx max pages based on set size)
@@ -51,7 +52,7 @@ function App() {
     };
 
     initGame();
-  }, [gameMode]); // Re-run when gameMode changes
+  }, [gameMode, puzzleIndex]); // Re-run when gameMode or index changes
 
   // Update active clue based on selection
   useEffect(() => {
@@ -164,28 +165,49 @@ function App() {
         <p className="text-gray-400 mt-2 text-lg">Daily Magic: The Gathering Crossword</p>
 
         {/* Game Mode Selector */}
-        <div className="mt-4 flex gap-2 bg-gray-800 p-1 rounded-lg border border-gray-700">
-          <button
-            onClick={() => setGameMode('oldschool')}
-            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${gameMode === 'oldschool'
-              ? 'bg-yellow-600 text-white shadow-sm'
-              : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
-              }`}
-          >
-            Old School (93/94)
-          </button>
-          <button
-            onClick={() => setGameMode('premodern')}
-            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${gameMode === 'premodern'
-              ? 'bg-yellow-600 text-white shadow-sm'
-              : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
-              }`}
-          >
-            Premodern
-          </button>
+        <div className="mt-4 flex flex-col items-center gap-3">
+          <div className="flex gap-2 bg-gray-800 p-1 rounded-lg border border-gray-700">
+            <button
+              onClick={() => { setGameMode('oldschool'); setPuzzleIndex(1); }}
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${gameMode === 'oldschool'
+                ? 'bg-yellow-600 text-white shadow-sm'
+                : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                }`}
+            >
+              Old School (93/94)
+            </button>
+            <button
+              onClick={() => { setGameMode('premodern'); setPuzzleIndex(1); }}
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${gameMode === 'premodern'
+                ? 'bg-yellow-600 text-white shadow-sm'
+                : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                }`}
+            >
+              Premodern
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 text-sm text-gray-400 bg-gray-800/50 px-3 py-1 rounded-full border border-gray-700/50">
+            <button
+              onClick={() => setPuzzleIndex(Math.max(1, puzzleIndex - 1))}
+              disabled={puzzleIndex <= 1}
+              className={`p-1 hover:text-white transition-colors ${puzzleIndex <= 1 ? 'opacity-30 cursor-not-allowed' : ''}`}
+            >
+              <span className="sr-only">Previous Puzzle</span>
+              ←
+            </button>
+            <span className="font-mono text-yellow-500 font-bold min-w-[80px] text-center">Puzzle #{puzzleIndex}</span>
+            <button
+              onClick={() => setPuzzleIndex(puzzleIndex + 1)}
+              className="p-1 hover:text-white transition-colors"
+            >
+              <span className="sr-only">Next Puzzle</span>
+              →
+            </button>
+          </div>
         </div>
 
-        <p className="text-xs text-gray-600 font-mono mt-3">{new Date().toDateString()} • v{import.meta.env.PACKAGE_VERSION}</p>
+        <p className="text-xs text-gray-600 font-mono mt-3">{new Date().toDateString()} • v{import.meta.env.PACKAGE_VERSION} (Expanded Mechanics)</p>
       </header>
 
       {loading ? (
