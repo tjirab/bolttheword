@@ -1,11 +1,15 @@
 import type { Card } from './types';
 
-const SETS = ['leb', 'arn', 'leg', 'drk', 'atq', 'fem'];
-const QUERY = `(${SETS.map(s => `set:${s}`).join(' OR ')}) -is:basic -type:basic`;
+const OLD_SCHOOL_SETS = ['leb', 'arn', 'leg', 'drk', 'atq', 'fem'];
+const OLD_SCHOOL_QUERY = `(${OLD_SCHOOL_SETS.map(s => `set:${s}`).join(' OR ')}) -is:basic -type:basic`;
+const PREMODERN_QUERY = `f:premodern -is:basic -type:basic`;
 
-export async function fetchCards(page: number = 1): Promise<Card[]> {
+export type GameMode = 'oldschool' | 'premodern';
+
+export async function fetchCards(page: number = 1, mode: GameMode = 'oldschool'): Promise<Card[]> {
+    const query = mode === 'premodern' ? PREMODERN_QUERY : OLD_SCHOOL_QUERY;
     try {
-        const response = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(QUERY)}&page=${page}`);
+        const response = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(query)}&page=${page}`);
         if (!response.ok) {
             throw new Error('Failed to fetch cards');
         }
