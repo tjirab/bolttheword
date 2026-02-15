@@ -185,7 +185,7 @@ function App() {
           </button>
         </div>
 
-        <p className="text-xs text-gray-600 font-mono mt-3">{new Date().toDateString()} • v{import.meta.env.PACKAGE_VERSION} (Expanded Mechanics)</p>
+        <p className="text-xs text-gray-600 font-mono mt-3">{new Date().toDateString()} • v{import.meta.env.PACKAGE_VERSION}</p>
       </header>
 
       {loading ? (
@@ -194,8 +194,8 @@ function App() {
           <p className="text-xl font-medium animate-pulse">Conjuring Puzzle...</p>
         </div>
       ) : gridData ? (
-        <div className="flex flex-col lg:flex-row gap-8 items-start justify-center w-full px-4 md:px-8">
-          <div className="flex-1 w-full max-w-[1200px] flex flex-col items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_minmax(300px,25%)] gap-8 items-start w-full px-4 md:px-8 max-w-[1400px]">
+          <div className="flex flex-col items-center w-full">
             <Crossword
               gridData={gridData}
               userGrid={userGrid}
@@ -214,7 +214,7 @@ function App() {
             </div>
           </div>
 
-          <div className="w-full lg:w-1/3 xl:w-1/4 min-w-[300px]">
+          <div className="w-full h-full min-w-[300px] overflow-hidden">
             <Clues clues={gridData.clues} activeClueId={activeClueId} onClueClick={handleClueClick} />
           </div>
         </div>
