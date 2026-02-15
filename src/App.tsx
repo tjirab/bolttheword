@@ -53,7 +53,102 @@ function App() {
     initGame();
   }, [gameMode]); // Re-run when gameMode changes
 
-  // ... (existing code)
+  // Update active clue based on selection
+  useEffect(() => {
+    if (!gridData || !selectedCell) return;
+
+    // Find a clue that includes this cell in the current direction
+    const relevantClue = gridData.clues.find(c => {
+      if (c.direction !== direction) return false;
+      if (direction === 'across') {
+        return c.y === selectedCell.y && selectedCell.x >= c.x && selectedCell.x < c.x + c.length;
+      } else {
+        return c.x === selectedCell.x && selectedCell.y >= c.y && selectedCell.y < c.y + c.length;
+      }
+    });
+
+    if (relevantClue) {
+      setActiveClueId(relevantClue.id);
+    } else {
+      // Try other direction if current doesn't match
+      const otherClue = gridData.clues.find(c => {
+        const dir = direction === 'across' ? 'down' : 'across';
+        if (c.direction !== dir) return false;
+        if (dir === 'across') {
+          return c.y === selectedCell.y && selectedCell.x >= c.x && selectedCell.x < c.x + c.length;
+        } else {
+          return c.x === selectedCell.x && selectedCell.y >= c.y && selectedCell.y < c.y + c.length;
+        }
+      });
+      if (otherClue) {
+        setActiveClueId(otherClue.id);
+        // Don't auto-switch direction here, it might be annoying.
+      } else {
+        setActiveClueId(null);
+      }
+    }
+  }, [selectedCell, direction, gridData]);
+
+  const handleCellClick = (x: number, y: number) => {
+    if (selectedCell?.x === x && selectedCell?.y === y) {
+      setDirection(prev => prev === 'across' ? 'down' : 'across');
+    } else {
+      setSelectedCell({ x, y });
+    }
+  };
+
+  const handleCellChange = (x: number, y: number, value: string) => {
+    if (solved) return;
+
+    const newGrid = [...userGrid.map(row => [...row])];
+    newGrid[y][x] = value;
+    setUserGrid(newGrid);
+
+    // Move cursor
+    if (value !== '') {
+      // Advance
+      if (direction === 'across') {
+        // We need to check if next cell is valid (not null/black)
+        let nextX = x + 1;
+        while (nextX < (gridData?.width || 0) && gridData?.grid[y][nextX] !== null) {
+          setSelectedCell({ x: nextX, y });
+          break;
+        }
+      } else {
+        if (y + 1 < (gridData?.height || 0) && gridData?.grid[y + 1][x] !== null) {
+          setSelectedCell({ x, y: y + 1 });
+        }
+      }
+    }
+
+    // Check win condition
+    checkWin(newGrid);
+  };
+
+  const checkWin = (currentGrid: (string | null)[][]) => {
+    if (!gridData) return;
+    let isConnect = true;
+    for (let y = 0; y < gridData.height; y++) {
+      for (let x = 0; x < gridData.width; x++) {
+        if (gridData.grid[y][x] !== null) {
+          if (currentGrid[y][x] !== gridData.grid[y][x]) {
+            isConnect = false;
+            break;
+          }
+        }
+      }
+    }
+    if (isConnect) setSolved(true);
+  };
+
+  const handleClueClick = (clueId: string) => {
+    const clue = gridData?.clues.find(c => c.id === clueId);
+    if (clue) {
+      setSelectedCell({ x: clue.x, y: clue.y });
+      setDirection(clue.direction);
+      setActiveClueId(clueId);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center py-8 px-4 font-sans">
@@ -73,8 +168,8 @@ function App() {
           <button
             onClick={() => setGameMode('oldschool')}
             className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${gameMode === 'oldschool'
-                ? 'bg-yellow-600 text-white shadow-sm'
-                : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+              ? 'bg-yellow-600 text-white shadow-sm'
+              : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
               }`}
           >
             Old School (93/94)
@@ -82,8 +177,8 @@ function App() {
           <button
             onClick={() => setGameMode('premodern')}
             className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${gameMode === 'premodern'
-                ? 'bg-yellow-600 text-white shadow-sm'
-                : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+              ? 'bg-yellow-600 text-white shadow-sm'
+              : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
               }`}
           >
             Premodern
