@@ -185,7 +185,7 @@ function App() {
           </button>
         </div>
 
-        <p className="text-xs text-gray-600 font-mono mt-3">{new Date().toDateString()} • v{import.meta.env.PACKAGE_VERSION} (Expanded Mechanics)</p>
+        <p className="text-xs text-gray-600 font-mono mt-3">{new Date().toDateString()} • v{import.meta.env.PACKAGE_VERSION}</p>
       </header>
 
       {loading ? (
